@@ -1,0 +1,21 @@
+---
+- hosts: all
+  remote_user: root
+  tasks:
+    - name: Disable Cisco AMP service
+      systemd:
+        name: cisco-amp.service
+        enabled: no
+        state: stopped
+    - name: Reboot system
+      shell: sleep 2 && reboot
+      async: 1
+      poll: 0
+      ignore_errors: 0
+    - name: Wait for server to restart
+      local_action:
+        module: wait_for
+        host: "{{ inventory_hostname }}"
+        port: 22
+        delay: 30
+        timeout: 600
